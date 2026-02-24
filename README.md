@@ -16,6 +16,7 @@ The request is formatted as <theme>:<first_name>:<last_name>:.
 - theme Is the theme of name desired, written as a string. Currently <fantasy>, <sci-fi>, and <modern> are the only options implemented.
 - first_name Indicates whether or not a first name is desired as part of the response. This field should either be <true> or <false>.
 - last_name Indicates whether or not a last name is desired as part of the response. This field should either be <true> or <false>.
+
 One or both of first_name and last_name must be true, or else the microservice will not respond to the request.
 
 For example, using a send_request fuction as shown below takes 
