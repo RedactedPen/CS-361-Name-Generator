@@ -35,7 +35,7 @@ int establish_socket(){
     server_addr.sin_addr.s_addr = inet_addr(LOCAL_HOST);
 
     //Attempt to bind to localhost
-    int bind_result = bind(socket_num, &server_addr, sizeof(server_addr));
+    int bind_result = bind(socket_num, (struct sockaddr*)&server_addr, sizeof(server_addr));
     if(bind_result != 0){
         std::cout << "Failed to bind to localhost" << std::endl;
         return -1;
@@ -48,7 +48,6 @@ int establish_socket(){
         return -1;
     }
     return socket_num;
-
 }
 
 //Gets the request data from the client over the provided socket
@@ -63,16 +62,16 @@ int get_request(int socket, std::string &theme, bool &first_name, bool &last_nam
     
     //Used to detect the end of transmission character used to denote the end
     //of the client's request
-    char end_of_transmission = {4, '\0'};
+    char end_of_transmission[2] = {4, '\0'};
 
 
-    while(strstr(message, end_of_transmission) == null){
+    while(strstr(message, end_of_transmission) == nullptr){
         //Check if there is more space in the message buffer
         if(max_bytes_remaining <= 0){
             //Resize the buffer to handle more text
             max_bytes_remaining += initial_size;
             initial_size *= 2;
-            peekmessage_text = (char *) realloc(message, initial_size);
+            message = (char *) realloc(message, initial_size);
         }
 
         //receive the data from the client
@@ -98,11 +97,11 @@ int get_request(int socket, std::string &theme, bool &first_name, bool &last_nam
     }
 
     //Ensure the string is properly null terminated
-    char* transmission_end = strstr(peek_text, eot);
+    char* transmission_end = strstr(message, end_of_transmission);
     transmission_end[0] = '\0';
 
     char* message_base = message;
-
+    std::cout << "Received message |" << message << "|" << std::endl;
     //Message syntax: theme:first_name:last_name
     //theme: string
     //first_name: bool
@@ -134,9 +133,9 @@ int get_request(int socket, std::string &theme, bool &first_name, bool &last_nam
     second_delimiter++;
 
     //Check the value
-    if(std::strcmp(message, "true")){
+    if(!std::strcmp(message, "true")){
         first_name = true;
-    }else if(std::strcmp(message, "false")){
+    }else if(!std::strcmp(message, "false")){
         first_name = false;
     }else{
         std::cout << "Client sent bad request |" << message << "|" << std::endl;
@@ -147,9 +146,9 @@ int get_request(int socket, std::string &theme, bool &first_name, bool &last_nam
     message = second_delimiter;
 
     //Check the value of the last_name variable
-    if(std::strcmp(message, "true")){
+    if(!std::strcmp(message, "true")){
         last_name = true;
-    }else if(std::strcmp(message, "false")){
+    }else if(!std::strcmp(message, "false")){
         last_name = false;
     }else{
         std::cout << "Client sent bad request |" << message << "|" << std::endl;
@@ -164,21 +163,36 @@ int get_request(int socket, std::string &theme, bool &first_name, bool &last_nam
 
 void send_response(int socket, std::string first_name, std::string last_name){
     std::string message = "";
-    message += first_name;
-    message += " ";
-    message += last_name;
+    if(first_name != "" && last_name != ""){
+        message += first_name;
+        message += " ";
+        message += last_name;
+    }else if(first_name != ""){
+        message += first_name;
+    }else{
+        message += last_name;
+    }
+    
+
+    std::cout << "Sending response " << message << std::endl;
+
+    //Add the end of transmission character
+    char eot = 4;
+    message += eot;
 
     //Set up the variables for sending data
     int total_bytes_sent = 0;
-    int bytes_to_send = message.length;
+    int bytes_to_send = message.length();
     int bytes_remaining = bytes_to_send;
+
+    char* message_ptr = &(message[0]);
 
     //Loop until all bytes have been sent
     while(total_bytes_sent < bytes_to_send){
         //Send the message
         int bytes_sent = send(
             socket, 
-            message + total_bytes_sent,
+            message_ptr + total_bytes_sent,
             bytes_remaining,
             0
         );
@@ -188,7 +202,7 @@ void send_response(int socket, std::string first_name, std::string last_name){
             bytes_remaining -= bytes_sent;
         }else{
             //Some error occured. Print an error message
-            std::cout << " Error on sending response\n" << std::endl
+            std::cout << " Error on sending response\n" << std::endl;
             return;
         }
     }
@@ -254,12 +268,15 @@ int main(){
     //Load the name data into memory
     load_data();
     
-    while(True){
+    std::cout << "Waiting for connection..." << std::endl;
+    while(true){
+        
         int client_socket = accept(socket, 0, 0);
         if(client_socket == -1){
             std::cout << "Failed to connect to the client" << std::endl;
             continue;
         }
+        std::cout << "Connected to client" << std::endl;
 
         std::string theme;
         bool first_name;
@@ -271,6 +288,7 @@ int main(){
             close(client_socket);
             return -1;
         }
+        std::cout << "Got request for theme " << theme << std::endl;
 
         //Ensure the client actually requested either a first name or a last name
         if(!first_name && !last_name){
@@ -317,7 +335,7 @@ int main(){
         }
 
         //Send the name in response
-        send_response(client_socket, first_name, last_name);
+        send_response(client_socket, first_name_str, last_name_str);
 
         //Close the socket
         close(client_socket);
