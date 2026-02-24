@@ -12,9 +12,16 @@ B. To request data from the microservice, define the specfic
 request as a string type, get the size of the request in bytes,
 finally send each byte until the whole request has been sent.
 
+The request is formatted as <theme>:<first_name>:<last_name>:.
+- <theme> Is the theme of name desired, written as a string. Currently <fantasy>, <sci-fi>, and <modern> are the only options implemented.
+- <first_name> Indicates whether or not a first name is desired as part of the response. This field should either be <true> or <false>.
+- <last_name> Indicates whether or not a last name is desired as part of the response. This field should either be <true> or <false>.
+One or both of first_name and last_name must be true, or else the microservice will not respond to the request.
+
 For example, using a send_request fuction as shown below takes 
 in a socket number and a message and interatively sends the
 request:
+```
 int request_result = send_request(socket, message);
 
 int send_request(int socket, std::string request){
@@ -42,6 +49,7 @@ int send_request(int socket, std::string request){
     }
     return 0;
 }
+```
 
 
 C. To receive data, you define a message buffer, and while 
@@ -50,6 +58,7 @@ there is enough space in the message buffer (resizing the buffer
 when needed) and get data from the client using recv(). 
 
 For example, using a get_response function:
+```
 int response_result = get_response(socket, response);
 
 int get_response(int socket, std::string &response){
@@ -91,5 +100,6 @@ int get_response(int socket, std::string &response){
     free(message);
     return 0;
 }
+```
 
 D. ![UML Diagram](./UML_Diagram.png "UML Diagram image")
