@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdlib>
 #include <cstring>
+#include <time.h>
 
 //Networking headers
 #include <arpa/inet.h>
@@ -259,6 +260,8 @@ void load_data(){
     file6.close();
 }
 int main(){
+    srand(time(NULL));
+
     //Set up the listening port
     int socket = establish_socket();
     if(socket == -1){
