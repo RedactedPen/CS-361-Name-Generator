@@ -92,7 +92,9 @@ int get_request(int socket, std::string &theme, bool &first_name, bool &last_nam
             return -1;
         }else{
             //recv had an error
-            std::cout << "Error receiving data from client, recv returned " << bytes_received << std::endl;
+            std::cout << 
+                "Error receiving data from client, recv returned " 
+                << bytes_received << std::endl;
             return -1;
         }
     }
