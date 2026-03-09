@@ -259,6 +259,7 @@ void load_data(){
     }
     file6.close();
 }
+
 int main(){
     srand(time(NULL));
 
@@ -343,35 +344,5 @@ int main(){
         //Close the socket
         close(client_socket);
     }
-        // //if theme == fantasy, first name 
-        //     int num = rand() % 200;
-        //     name = fantasy_first_name[num];   
 
-        // //if theme == sci_fi, first name 
-        //     int num = rand() % 200;
-        //     name = sci_fi_first_name[num];
-
-        // //if theme == modern, first name 
-        //     int num = rand() % 200;
-        //     name = modern_first_name[num];
-
-        // //if theme == fantasy, last name 
-        //     num = rand() % 200;
-        //     last_name = fantasy_last_name[num];   
-
-        // //if theme == sci_fi, last name 
-        //     int num = rand() % 200;
-        //     last_name = sci_fi_last_name[num];
-
-        // //if theme == modern, last name 
-        //     int num = rand() % 200;
-        //     last_name = modern_last_name[num];
-
-        // //if name != " " && last_name != " "
-        //     std::string full_name = name + " " + last_name;
-        //     //return full_name to caller
-        // //else if name != " "
-        //     //return name to caller
-        // //else if last_name != " "
-        //     //return last_name to caller
 }
